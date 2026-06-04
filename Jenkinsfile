@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     stages {
@@ -10,23 +9,26 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build and Test') {
             steps {
-                sh 'mvn clean compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
+                sh '''
+                docker run --rm \
+                -v $PWD:/workspace \
+                -w /workspace \
+                maven:3.9.6-eclipse-temurin-17 \
+                mvn clean test
+                '''
             }
         }
     }
 
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/*.jar'
+            junit testResults: '**/target/surefire-reports/*.xml',
+                  allowEmptyResults: true
+
+            archiveArtifacts artifacts: '**/target/*.jar',
+                             allowEmptyArchive: true
         }
     }
 }
