@@ -1,10 +1,6 @@
 pipeline {
 
-    agent {
-        docker {
-            image 'maven:3.9.6-eclipse-temurin-17'
-        }
-    }
+    agent any
 
     stages {
 
@@ -30,11 +26,7 @@ pipeline {
     post {
         always {
             junit '**/target/surefire-reports/*.xml'
-
-            archiveArtifacts(
-                artifacts: '**/target/*.jar',
-                fingerprint: true
-            )
+            archiveArtifacts artifacts: '**/target/*.jar'
         }
     }
 }
